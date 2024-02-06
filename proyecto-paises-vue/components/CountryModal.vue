@@ -9,17 +9,17 @@
                 <img :src="pais.flags.png" :alt="pais.flags.alt">
             </div>
             <div class="dialog-info">
-                <p v-if="pais.capital">Capital: <span>{{ pais.capital.join(' ') }}</span></p>
+                <p v-if="pais.capital">Capital: <span>{{ capitalText }}</span></p>
                 <p v-else>Capital: No tiene</p>
                 <p>Población: <span>{{ pais.population }}</span></p>
-                <p>Continente <span>{{ pais.continents.join(' ') }}</span></p>
+                <p>Continente: <span>{{ continentsText }}</span></p>
                 <p>Area: <span>{{ pais.area }}</span></p>
-                <p>Densidad: <span>{{ pais.population / pais.area }}</span></p>
-                <p v-if="pais.currencies">Moneda: <span>{{ Object.keys(pais.currencies).map(clave => pais.currencies[clave].name).join(", ") }}</span></p>
+                <p>Densidad: <span>{{ density }}</span></p>
+                <p v-if="pais.currencies">Moneda: <span>{{ currencyText }}</span></p>
                 <p v-else>Monedas: No tiene</p>
                 <a :href="pais.maps.googleMaps"></a>
                 <p>ONU: <span>{{ pais.unMember }}</span>`</p>
-                <p v-if="pais.languages">Idiomas: <span>{{ Object.keys(pais.languages).map(clave => pais.languages[clave]).join(", ") }}</span></p>
+                <p v-if="pais.languages">Idiomas: <span>{{ languageText }}</span></p>
                 <p v-else>Idioma: <span>No tiene</span></p>
             </div>
         </div>
@@ -28,14 +28,40 @@
 
 <script>
 export default {
-  props: {
-    pais: {
-      type: Object,
-      required: true
+    props: {
+        pais: {
+            type: Object,
+            required: true
+        }
+    },
+    computed: {
+        capitalText() {
+            return this.pais.capital ? this.pais.capital.join(' ') : '';
+        },
+        continentsText() {
+            return this.pais.continents ? this.pais.continents.join(' ') : '';
+        },
+        density() {
+            return this.pais.population / this.pais.area;
+        },
+        currencyText() {
+            if (this.pais.currencies) {
+                return Object.keys(this.pais.currencies).map(clave => this.pais.currencies[clave].name).join(", ");
+            } else {
+                return '';
+            }
+        },
+        languageText() {
+            if (this.pais.languages) {
+                return Object.keys(this.pais.languages).map(clave => this.pais.languages[clave]).join(", ");
+            } else {
+                return '';
+            }
+        }
     }
-  }
 }
 </script>
+
 
 <style scoped>
 dialog {

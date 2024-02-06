@@ -5,9 +5,9 @@
         </div>
         <div class="card-body">
             <h2>{{ pais.name.common }}</h2>
-            <p>Capital: <span>{{ pais.capital.join(' ') }}</span></p>
+            <p>Capital: <span>{{ capitalText }}</span></p>
             <p>Población: <span>{{ pais.population }}</span></p>
-            <p>Continente: {{ pais.continents.join(' ') }}</p>
+            <p>Continente: <span>{{ continentsText }}</span></p>
         </div>
     </div>
 </template>
@@ -20,8 +20,17 @@
                 required: true
             }
         },
+        computed: {
+            capitalText() {
+                return this.pais.capital ? this.pais.capital.join(' ') : '';
+            },
+            continentsText() {
+                return this.pais.continents ? this.pais.continents.join(' ') : '';
+            }
+        }
     }
 </script>
+
 
 <style scoped>
     .card {

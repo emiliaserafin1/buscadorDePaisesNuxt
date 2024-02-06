@@ -11,6 +11,8 @@
 <script>
 import CountryCard from '~/components/CountryCard.vue';
 import CountryModal from '~/components/CountryModal.vue';
+import { toRaw } from 'vue';
+
 export default {
   components: {
     CountryCard,
@@ -33,7 +35,6 @@ export default {
       try {
         const response = await fetch(this.paisesApiUrl);
         const paises = await response.json();
-        console.log('Paises:', paises);
         this.listaDePaisesAux = paises;
         this.ocultarLoader();
         return paises;
@@ -70,9 +71,13 @@ export default {
     },
 
     mostrarModal(pais) {
-      console.log(pais);
-      this.selectedCountry = pais;
+      this.selectedCountry = toRaw(pais);
       this.showModal = true;
+    },
+
+    cerrarModal() {
+      this.showModal = false;
+      this.selectedCountry = {};
     }
   },
 
