@@ -1,18 +1,20 @@
 <template>
-  <div class="ligth-mode">
+  <div>
     <div class="card-container">
       <div id="loader" class="loader"></div>
-      <CountryCard v-for="pais in listaDePaisesAux" :pais="pais" :key="pais.cca3"></CountryCard>
+      <CountryCard v-for="pais in listaDePaisesAux" :pais="pais" @click="mostrarModal(pais)"></CountryCard>
     </div>
   </div>
+  <CountryModal v-if="showModal" :pais="selectedCountry"></CountryModal>
 </template>
 
 <script>
 import CountryCard from '~/components/CountryCard.vue';
-
+import CountryModal from '~/components/CountryModal.vue';
 export default {
   components: {
-    CountryCard
+    CountryCard,
+    CountryModal
   },
   
   data() {
@@ -20,7 +22,9 @@ export default {
       paisesApiUrl: 'https://restcountries.com/v3.1/all',
       filtrarPorContinenteApiUrl: 'https://restcountries.com/v3.1/region/',
       listaDePaisesAux: [],
-    };
+      showModal: false,
+      selectedCountry: {}
+    }
   },
   
   methods: {
@@ -64,6 +68,12 @@ export default {
         loader.style.display = 'none';
       }
     },
+
+    mostrarModal(pais) {
+      console.log(pais);
+      this.selectedCountry = pais;
+      this.showModal = true;
+    }
   },
 
   mounted() {
