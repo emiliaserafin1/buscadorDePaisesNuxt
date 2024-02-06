@@ -1,3 +1,9 @@
+<template>
+    <header>
+        <h1>{{ title }}</h1>
+    </header>
+</template>
+
 <script>
     export default {
         props: {
@@ -8,12 +14,6 @@
         }
     }
 </script>
-
-<template>
-    <header>
-        <h1>{{ title }}</h1>
-    </header>
-</template>
 
 <style scoped>
     header {
@@ -28,5 +28,12 @@
         font-size: 28px;
         font-weight: 500;
     }
+
+    i {
+        margin: 0 40px 0 auto;
+        font-size: 22px;
+        cursor: pointer;
+    }
 </style>
+
  
