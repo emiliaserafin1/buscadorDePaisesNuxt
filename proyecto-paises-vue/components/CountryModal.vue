@@ -64,20 +64,25 @@ export default {
 
 
 <style scoped>
-dialog {
-    overflow: hidden;
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
     margin: auto;
     border-radius: 10px;
     border: none;
     box-shadow: -2px 4px 14px -1px rgba(0,0,0,0.57);
     -webkit-box-shadow: -2px 4px 14px -1px rgba(0,0,0,0.57);
     -moz-box-shadow: -2px 4px 14px -1px rgba(0,0,0,0.57);
+    background-color: white;
 }
 
 .btn-container {
     width: 100%;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
 }
 
 .modal-content {

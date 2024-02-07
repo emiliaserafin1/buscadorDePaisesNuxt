@@ -11,7 +11,6 @@
 <script>
 import CountryCard from '~/components/CountryCard.vue';
 import CountryModal from '~/components/CountryModal.vue';
-import { toRaw } from 'vue';
 
 export default {
   components: {
@@ -71,7 +70,9 @@ export default {
     },
 
     mostrarModal(pais) {
-      this.selectedCountry = toRaw(pais);
+      console.log(pais)
+      this.selectedCountry = pais;
+      console.log(this.selectedCountry)
       this.showModal = true;
     },
 

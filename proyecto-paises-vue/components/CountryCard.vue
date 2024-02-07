@@ -27,7 +27,7 @@
             continentsText() {
                 return this.pais.continents ? this.pais.continents.join(' ') : '';
             }
-        }
+        },
     }
 </script>
 
