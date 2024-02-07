@@ -1,7 +1,7 @@
 <template>
     <div class="modal">
         <div class="btn-container">
-            <button id="cerrar">x</button>
+            <button id="cerrar" @click="this.$emit('cerrarModal')">x</button>
         </div>
         <div class="modal-content">
             <div class="dialog-cabecera">
@@ -17,7 +17,7 @@
                 <p>Densidad: <span>{{ density }}</span></p>
                 <p v-if="pais.currencies">Moneda: <span>{{ currencyText }}</span></p>
                 <p v-else>Monedas: No tiene</p>
-                <a :href="pais.maps.googleMaps"></a>
+                <a :href="pais.maps.googleMaps" target="_blank">Link googleMaps</a>
                 <p>ONU: <span>{{ pais.unMember }}</span>`</p>
                 <p v-if="pais.languages">Idiomas: <span>{{ languageText }}</span></p>
                 <p v-else>Idioma: <span>No tiene</span></p>
@@ -58,7 +58,7 @@ export default {
                 return '';
             }
         }
-    }
+    },
 }
 </script>
 
@@ -99,6 +99,7 @@ export default {
     img {
         margin: 10px 20px 0 0;
         width: 350px;
+        height: 230px;
         object-fit: cover;
     }
 }

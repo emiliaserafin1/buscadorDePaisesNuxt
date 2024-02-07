@@ -1,11 +1,12 @@
 <template>
   <div>
+    <InputSearch @filtrarPorNombre="filtrarPorNombre"></InputSearch>
     <div class="card-container">
       <div id="loader" class="loader"></div>
       <CountryCard v-for="pais in listaDePaisesAux" :pais="pais" @click="mostrarModal(pais)"></CountryCard>
     </div>
   </div>
-  <CountryModal v-if="showModal" :pais="selectedCountry"></CountryModal>
+  <CountryModal v-if="showModal" :pais="selectedCountry" @cerrarModal="cerrarModal"></CountryModal>
 </template>
 
 <script>
@@ -55,6 +56,19 @@ export default {
       }
     },
 
+    async filtrarPorNombre(listaDePaises) {
+      // Filtrar los países que comienzan con la búsqueda
+      const paisesEmp = listaDePaises.filter(pais => pais.name.common.toLowerCase().startsWith(inp.toLowerCase()));
+
+      // Filtrar los países que tienen la búsqueda pero no comienzan por ella
+      const paisesInc = listaDePaises.filter(pais => pais.name.common.toLowerCase().includes(busqueda.toLowerCase()) && !paisesEmp.includes(pais));
+
+      // Concatenar las listas
+      const paisesFiltrados = paisesEmp.concat(paisesInc);
+
+      return paisesFiltrados;
+    },
+
     mostrarLoader() {
       const loader = document.getElementById('loader');
       if (loader) {
@@ -78,7 +92,7 @@ export default {
 
     cerrarModal() {
       this.showModal = false;
-      this.selectedCountry = {};
+      this.selectedCountry = null;
     }
   },
 
