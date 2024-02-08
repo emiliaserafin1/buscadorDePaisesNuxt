@@ -1,7 +1,11 @@
 <template>
   <div>
     <div class="filtros">
-      <InputSearch @filtrarPorNombre="inputValue = $event" ref="inputSearchRef"></InputSearch>
+      <InputSearch @filtrarPorNombre="filter" ref="inputSearchRef"></InputSearch>
+      <div  class="checkbox-container">
+        <label for="filtro-paises"></label>
+        <input id="filtro-paises" type="checkbox" v-model="checkBoxInd"/> Independiente
+      </div>
       <div>
         <select name="orden" id="orden" v-model="ordenamiento">
           <option value="default" disabled selected>Ordenar por</option>
@@ -45,18 +49,17 @@ export default {
   data() {
     return {
       paisesApiUrl: 'https://restcountries.com/v3.1/all',
-      listaDePaisesAux: [],
+      buscarPorNombreUrl: 'https://restcountries.com/v3.1/name/',
+      paisesIndUrl: 'https://restcountries.com/v3.1/independent?status=true',
+      paisesFiltradosArr: [],
       inputValue: '',
       continente: 'default',
       ordenamiento: 'default',
       showModal: false,
-      selectedCountry: {}
-    }
-  },
-
-  computed: {
-    paisesFiltradosArr() {
-      return this.filtrar()   
+      listaDePaisesAux: [],
+      selectedCountry: {},
+      paisesFiltradosArr: [],
+      checkBoxInd: false 
     }
   },
 
@@ -67,9 +70,39 @@ export default {
         const response = await fetch(this.paisesApiUrl);
         const paises = await response.json();
         this.listaDePaisesAux = paises;
+        this.paisesFiltradosArr = paises;
         this.ocultarLoader();
         return paises;
       } catch (error) {
+        this.ocultarLoader();
+      }
+    },
+
+    filter(inputValue) {
+      this.inputValue = inputValue;
+      this.filtrar();
+    },
+
+    async filtrarPorNombre() {
+      try {
+        const response = await fetch(this.buscarPorNombreUrl + this.inputValue);
+        const paises = await response.json();
+        return paises;
+      } catch (error) {
+        console.error('Error al filtrar por nombre:', error);
+        return [];
+      }
+    },
+
+    async filtrarIndependientes() {
+      this.mostrarLoader();
+      try {
+        const response = await fetch(this.paisesIndUrl);
+        const paises = await response.json();
+        this.ocultarLoader();
+        return paises;
+      } catch (error) {
+        console.error('Error al filtrar por independientes:', error);
         this.ocultarLoader();
       }
     },
@@ -98,13 +131,6 @@ export default {
       this.selectedCountry = null;
     },
 
-    filtrarPorNombre() {
-      const inputValueLowerCase = this.inputValue.toLowerCase();
-      const paisesEmpiezanCon = this.listaDePaisesAux.filter(pais => pais.name.common.toLowerCase().startsWith(inputValueLowerCase));
-      const paisesContienen = this.listaDePaisesAux.filter(pais => pais.name.common.toLowerCase().includes(inputValueLowerCase) && !paisesEmpiezanCon.includes(pais));
-      return paisesEmpiezanCon.concat(paisesContienen);
-    },
-
     ordenNombreAsc(listaDePaises){
       listaDePaises.sort((a,b) => {
           if(a.name.common > b.name.common){
@@ -131,20 +157,21 @@ export default {
       this.ordenamiento = 'default';
     },
 
-    filtrar() {
+    async filtrar() {
       let paisesFiltrados = [...this.listaDePaisesAux];
 
-      // Aplicamos filtro por nombre si hay una búsqueda
       if (this.inputValue.trim() !== '') {
-        paisesFiltrados = this.filtrarPorNombre();
+        paisesFiltrados = await this.filtrarPorNombre();
       }
 
-      // Filtramos por continente si se selecciona uno
+      if (this.checkBoxInd) {
+        paisesFiltrados = await this.filtrarIndependientes();
+      }
+
       if (this.continente !== 'default') {
         paisesFiltrados = paisesFiltrados.filter(pais => pais.region === this.continente);
       }
-
-      // Ordenamos según el criterio seleccionado
+      
       if (this.ordenamiento === 'nombre-asc') {
         paisesFiltrados = this.ordenNombreAsc(paisesFiltrados);
       } else if (this.ordenamiento === 'nombre-desc') {
@@ -155,7 +182,18 @@ export default {
         paisesFiltrados = this.ordenPoblacionAsc(paisesFiltrados).reverse();
       }
 
-      return paisesFiltrados;
+      this.paisesFiltradosArr = paisesFiltrados;
+    }
+  },
+  watch: {
+    continente() {
+        this.filtrar();
+    },
+    ordenamiento() {
+        this.filtrar();
+    },
+    checkBoxInd() {
+        this.filtrar();
     }
   },
 
@@ -186,15 +224,20 @@ export default {
     justify-content: space-between;
     margin: 20px 40px;
     input, select, button {
-        font-family: Roboto, sans-serif;
-        height: 32px;
-        border-radius: 5px;
-        padding: 0 5px;
-        font-size: 14px;
-        cursor: pointer;
-        margin: 0 3px;
-        }
+      font-family: Roboto, sans-serif;
+      height: 32px;
+      border-radius: 5px;
+      padding: 0 5px;
+      font-size: 14px;
+      cursor: pointer;
+      margin: 0 3px;
     }
+  }
+  
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+  }
 
   .loader {
     border: 8px solid #f3f3f3;
