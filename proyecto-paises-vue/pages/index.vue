@@ -1,9 +1,29 @@
 <template>
   <div>
-    <InputSearch @filtrarPorNombre="filtrarPorNombre"></InputSearch>
+    <div class="filtros">
+      <InputSearch @filtrarPorNombre="inputValue = $event"></InputSearch>
+      <div>
+        <select name="orden" id="orden" v-model="ordenamiento">
+          <option value="default" disabled selected>Ordenar por</option>
+          <option value="nombre-asc">Nombre ascendente</option>
+          <option value="nombre-desc">Nombre descendente</option>
+          <option value="poblacion-asc">Población ascendente</option>
+          <option value="poblacion-desc">Población descendente</option>
+        </select>
+        <select name="filtro" id="filtro" v-model="continente">
+          <option value="default" selected disabled>Selecciona un continente</option>
+          <option value="Europe">Europa</option>
+          <option value="America">América</option>
+          <option value="Oceania">Oceanía</option>
+          <option value="Africa">África</option>
+          <option value="Antarctic">Antártida</option>
+          <option value="Asia">Asia</option>
+        </select>
+      </div>
+    </div>
     <div class="card-container">
       <div id="loader" class="loader"></div>
-      <CountryCard v-for="pais in listaDePaisesAux" :pais="pais" @click="mostrarModal(pais)"></CountryCard>
+      <CountryCard v-for="pais in paisesFiltradosArr" :pais="pais" @click="mostrarModal(pais)"></CountryCard>
     </div>
   </div>
   <CountryModal v-if="showModal" :pais="selectedCountry" @cerrarModal="cerrarModal"></CountryModal>
@@ -24,11 +44,45 @@ export default {
       paisesApiUrl: 'https://restcountries.com/v3.1/all',
       filtrarPorContinenteApiUrl: 'https://restcountries.com/v3.1/region/',
       listaDePaisesAux: [],
+      inputValue: '',
+      continente: 'default',
+      ordenamiento: 'default',
       showModal: false,
       selectedCountry: {}
     }
   },
-  
+
+  computed: {
+  paisesFiltradosArr() {
+    let paisesFiltrados = [...this.listaDePaisesAux]; 
+    
+    // Filtramos por continente si se selecciona uno
+    if (this.continente !== 'default') {
+      paisesFiltrados = paisesFiltrados.filter(pais => pais.region === this.continente);
+    }
+
+    // Aplicamos filtro por nombre si hay una búsqueda
+    if (this.inputValue.trim() !== '') {
+      const inputValueLowerCase = this.inputValue.toLowerCase();
+      paisesFiltrados = paisesFiltrados.filter(pais => pais.name.common.toLowerCase().includes(inputValueLowerCase));
+    }
+
+    // Ordenamos según el criterio seleccionado
+    if (this.ordenamiento === 'nombre-asc') {
+      paisesFiltrados.sort((a, b) => a.name.common.localeCompare(b.name.common));
+    } else if (this.ordenamiento === 'nombre-desc') {
+      paisesFiltrados.sort((a, b) => b.name.common.localeCompare(a.name.common));
+    } else if (this.ordenamiento === 'poblacion-asc') {
+      paisesFiltrados.sort((a, b) => a.population - b.population);
+    } else if (this.ordenamiento === 'poblacion-desc') {
+      paisesFiltrados.sort((a, b) => b.population - a.population);
+    }
+
+    return paisesFiltrados;
+  }
+},
+
+
   methods: {
     async obtenerPaises() {
       this.mostrarLoader();
@@ -56,19 +110,6 @@ export default {
       }
     },
 
-    async filtrarPorNombre(listaDePaises) {
-      // Filtrar los países que comienzan con la búsqueda
-      const paisesEmp = listaDePaises.filter(pais => pais.name.common.toLowerCase().startsWith(inp.toLowerCase()));
-
-      // Filtrar los países que tienen la búsqueda pero no comienzan por ella
-      const paisesInc = listaDePaises.filter(pais => pais.name.common.toLowerCase().includes(busqueda.toLowerCase()) && !paisesEmp.includes(pais));
-
-      // Concatenar las listas
-      const paisesFiltrados = paisesEmp.concat(paisesInc);
-
-      return paisesFiltrados;
-    },
-
     mostrarLoader() {
       const loader = document.getElementById('loader');
       if (loader) {
@@ -84,23 +125,77 @@ export default {
     },
 
     mostrarModal(pais) {
-      console.log(pais)
       this.selectedCountry = pais;
-      console.log(this.selectedCountry)
       this.showModal = true;
     },
 
     cerrarModal() {
       this.showModal = false;
       this.selectedCountry = null;
-    }
-  },
+    },
+
+    filtrarPorNombre() {
+      const inputValueLowerCase = this.inputValue.toLowerCase();
+      const paisesEmpiezanCon = this.listaDePaisesAux.filter(pais => pais.name.common.toLowerCase().startsWith(inputValueLowerCase));
+      const paisesContienen = this.listaDePaisesAux.filter(pais => pais.name.common.toLowerCase().includes(inputValueLowerCase) && !paisesEmpiezanCon.includes(pais));
+      return paisesEmpiezanCon.concat(paisesContienen);
+    },
+
+    ordenNombreAsc(listaDePaises){
+      listaDePaises.sort((a,b) => {
+          if(a.name.common > b.name.common){
+              return 1;
+          }
+          if(a.name.common < b.name.common){
+              return -1;
+          }
+          return 0;
+      });
+      return listaDePaises;
+    },
+
+    ordenPoblacionAsc(listaDePaises){
+      listaDePaises.sort((a,b) =>  a.population - b.population);
+      return listaDePaises;
+    },
+
+  
+    async aplicarFiltros() {
+      let paisesFiltrados = this.listaDePaisesAux; 
+
+      // Filtrar por continente si se selecciona uno
+      if (this.continente !== 'default') {
+        const paisesPorContinente = await this.filtrarPorContinente(this.continente);
+        paisesFiltrados = paisesFiltrados.filter(pais => paisesPorContinente.includes(pais));
+      }
+
+      // Aplicar filtro por nombre si se ingresa una búsqueda
+      if (this.inputValue) {
+        paisesFiltrados = this.filtrarPorNombre(paisesFiltrados);
+      }
+
+      // Aplicar ordenamiento
+      if (this.ordenamiento === 'nombre-asc') {
+        paisesFiltrados = this.ordenNombreAsc(paisesFiltrados);
+      } else if (this.ordenamiento === 'nombre-desc') {
+        paisesFiltrados = this.ordenNombreAsc(paisesFiltrados).reverse();
+      } else if (this.ordenamiento === 'poblacion-asc') {
+        paisesFiltrados = this.ordenPoblacionAsc(paisesFiltrados);
+      } else if (this.ordenamiento === 'poblacion-desc') {
+        paisesFiltrados = this.ordenPoblacionAsc(paisesFiltrados).reverse();
+      }
+
+      return paisesFiltrados;
+      },
+    },
+
 
   mounted() {
     this.obtenerPaises();
   },
 };
 </script>
+
 
 <style>
   * {
@@ -115,6 +210,21 @@ export default {
     justify-content: center;
     flex-wrap: wrap;
   }
+
+  .filtros {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 40px;
+    input, select, button {
+        font-family: Roboto, sans-serif;
+        height: 32px;
+        border-radius: 5px;
+        padding: 0 5px;
+        font-size: 14px;
+        cursor: pointer;
+        }
+    }
 
   .loader {
     border: 8px solid #f3f3f3;
