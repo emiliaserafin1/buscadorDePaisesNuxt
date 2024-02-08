@@ -10,18 +10,21 @@
     export default {
         data() {
             return {
-                inputSearch: ''
+                inputSearch: '',
+                timer: null,
+                lastValueEmitted: ''
             }
         },
         methods: {
-            filtrarPorNombre() {
-                this.$emit('filtrarPorNombre', this.inputSearch);
-            },
             search() {
-                setTimeout(() => {
-                        this.$emit('filtrarPorNombre', this.inputSearch);
-                }, 1000);
-            }
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => {
+                if (this.inputSearch !== this.lastValueEmitted) {
+                    this.lastValueEmitted = this.inputSearch;
+                    this.$emit('filtrarPorNombre', this.inputSearch);
+                }
+            }, 1000);
+        }
         },
     }
 </script>
