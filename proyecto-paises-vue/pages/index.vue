@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="filtros">
-      <InputSearch @filtrarPorNombre="inputValue = $event"  v-model="inputValue"></InputSearch>
+      <InputSearch @filtrarPorNombre="inputValue = $event" ref="inputSearchRef"></InputSearch>
       <div>
         <select name="orden" id="orden" v-model="ordenamiento">
           <option value="default" disabled selected>Ordenar por</option>
@@ -126,10 +126,11 @@ export default {
     limpiarFiltros() {
       this.obtenerPaises();
       this.inputValue = '';
+      this.$refs.inputSearchRef.inputSearch = '';
       this.continente = 'default';
       this.ordenamiento = 'default';
     },
-    
+
     filtrar() {
       let paisesFiltrados = [...this.listaDePaisesAux];
 
@@ -191,6 +192,7 @@ export default {
         padding: 0 5px;
         font-size: 14px;
         cursor: pointer;
+        margin: 0 3px;
         }
     }
 

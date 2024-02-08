@@ -18,7 +18,7 @@
                 <p v-if="pais.currencies">Moneda: <span>{{ currencyText }}</span></p>
                 <p v-else>Monedas: No tiene</p>
                 <a :href="pais.maps.googleMaps" target="_blank">Link googleMaps</a>
-                <p>ONU: <span>{{ pais.unMember }}</span>`</p>
+                <p>ONU: <span>{{ pais.unMember }}</span></p>
                 <p v-if="pais.languages">Idiomas: <span>{{ languageText }}</span></p>
                 <p v-else>Idioma: <span>No tiene</span></p>
             </div>

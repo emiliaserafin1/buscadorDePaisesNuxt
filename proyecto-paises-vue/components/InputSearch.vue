@@ -1,7 +1,7 @@
 <template>
     <div>
         <label for="pais-input">
-            <input id="pais-input" type="text" placeholder="Ingrese un país" v-model="inputValue" @input="filtrarPorNombre">
+            <input id="pais-input" type="text" placeholder="Ingrese un país" v-model="inputSearch" @input="filtrarPorNombre">
         </label>
     </div>
 </template>
@@ -10,12 +10,12 @@
     export default {
         data() {
             return {
-                inputValue: ''
+                inputSearch: ''
             }
         },
         methods: {
             filtrarPorNombre() {
-                this.$emit('filtrarPorNombre', this.inputValue);
+                this.$emit('filtrarPorNombre', this.inputSearch);
             }
         }
     }
